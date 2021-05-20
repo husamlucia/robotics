@@ -1,14 +1,15 @@
 import PySimpleGUI as sg
-import point_extractor.ui_input as pe
-import vtff.ui_input as vtff
+import point_extractor as pe
+import vtff as vtff
 
 
 def main():
-    projects = {"vtff": vtff, "pe": pe}
+    projects = {"vtff": vtff.ui_input, "pe": pe.ui_input}
 
-    input_column = [[sg.Text("Press button to run program")],
-                    [sg.Button("Video to Filtered Frames", key="vtff")],
-                    [sg.Button("Point Extractor", key="pe")]]
+    input_column = [
+        [sg.Text("Press button to run program")],
+        [sg.Button("Video to Filtered Frames", key="vtff")],
+        [sg.Button("Point Extractor", key="pe")]]
 
     layout = [[sg.Column(input_column)]]
 
@@ -20,6 +21,9 @@ def main():
         if event in projects:
             projects[event]()
 
+        elif event == "OK" or event == sg.WIN_CLOSED:
+            break
 
-if _name_ == "_main_":
+
+if __name__ == "__main__":
     main()
