@@ -1,9 +1,8 @@
 import numpy as np
 import random, os
 from utils import *
-import time , sys
+import time, sys
 import pickle
-
 
 """
 Implementation of the SkelTree algorithm from 'Robust skeleton extraction from imperfect point clouds - 2010'
@@ -13,6 +12,8 @@ Implementation of the SkelTree algorithm from 'Robust skeleton extraction from i
     2) Each box has 6 adjacent boxes which can be part of a similar pointcloud object. It finds which boxes are connected and labels the connection direction.
     3) Iteratively merges boxes while trying to preserve the local direction of the pointcloud structure restuling in a skeleton of the tree
 """
+
+
 class myBox:
     """
     The class needs to be defined in the file which defines 'myDict'
@@ -21,9 +22,9 @@ class myBox:
     """
 
     def calc_cg(self):
-        self.cg = np.mean(self.points, axis = 0)
+        self.cg = np.mean(self.points, axis=0)
 
-    def __init__(self, dict_name, box_name, points, use_higher_dimensional_boxes = False):
+    def __init__(self, dict_name, box_name, points, use_higher_dimensional_boxes=False):
         """
         INPUTS
             dict_name: Name of the parent dictionary containing all the box objects
@@ -52,7 +53,7 @@ class myBox:
         if not isinstance(points, np.ndarray):
             raise Exception("Points should be in ndarray Nx3...")
         if points.any():
-            if not points.shape[1] ==3:
+            if not points.shape[1] == 3:
                 raise Exception("Points should be an np.ndarray Nx3...")
 
         self.dict_name = dict_name
@@ -60,8 +61,8 @@ class myBox:
         self.points = points
         self.use_higher_dimensional_boxes = use_higher_dimensional_boxes
 
-        #If more than 1 points
-        if points.any():# and points.shape[0] > 1:
+        # If more than 1 points
+        if points.any():  # and points.shape[0] > 1:
             self.calc_cg()
             self.contains_points = True
         else:
@@ -82,7 +83,7 @@ class myBox:
         Set everything to merge status, deleting everything
         """
         self.parent = box_name
-        self.merged  =True
+        self.merged = True
 
         self.points = None
         self.points = np.array([])
@@ -135,7 +136,7 @@ class myBox:
         distinct_labels = []
         for connection in self.connections:
             label = self.connections[connection]
-            present =False
+            present = False
             for distinct_label in distinct_labels:
 
                 if (label == distinct_label).all():
@@ -147,12 +148,12 @@ class myBox:
         self.Vdim = len(distinct_labels)
 
     def calc_Vdir(self):
-        Vdir = [0,0,0]
+        Vdir = [0, 0, 0]
 
         distinct_labels = []
         for connection in self.connections:
             label = self.connections[connection]
-            present =False
+            present = False
             for distinct_label in distinct_labels:
                 if (label == distinct_label).all():
                     present = True
@@ -161,7 +162,6 @@ class myBox:
                 distinct_labels.append(label)
 
         for label in distinct_labels:
-
             Vdir[0] += label[0]
             Vdir[1] += label[1]
             Vdir[2] += label[2]
@@ -174,12 +174,12 @@ class myBox:
         y = int(name_split[-2])
         z = int(name_split[-1])
 
-        neigbours = ['Box_' +str(x+1) + "_" + str(y) + "_" + str(z),
-                     'Box' + "_" + str(x-1) + "_" + str(y) + "_" + str(z),
-                     'Box' + "_" + str(x) + "_" + str(y+1) + "_" + str(z),
-                     'Box' + "_" + str(x) + "_" + str(y-1) + "_" + str(z),
-                     'Box' + "_" + str(x) + "_" + str(y) + "_" + str(z+1),
-                     'Box' + "_" + str(x) + "_" + str(y) + "_" + str(z-1)]
+        neigbours = ['Box_' + str(x + 1) + "_" + str(y) + "_" + str(z),
+                     'Box' + "_" + str(x - 1) + "_" + str(y) + "_" + str(z),
+                     'Box' + "_" + str(x) + "_" + str(y + 1) + "_" + str(z),
+                     'Box' + "_" + str(x) + "_" + str(y - 1) + "_" + str(z),
+                     'Box' + "_" + str(x) + "_" + str(y) + "_" + str(z + 1),
+                     'Box' + "_" + str(x) + "_" + str(y) + "_" + str(z - 1)]
         return neigbours
 
     def get_surrounding_boxes(self, box_name):
@@ -191,7 +191,7 @@ class myBox:
         y_base = int(name_split[-2])
         z_base = int(name_split[-1])
 
-        x,y,z = np.mgrid[ x_base - 1 : x_base + 2 : 1, y_base -1 : y_base + 2 : 1, z_base -1 : z_base + 2 : 1]
+        x, y, z = np.mgrid[x_base - 1: x_base + 2: 1, y_base - 1: y_base + 2: 1, z_base - 1: z_base + 2: 1]
         xyz_stack = np.vstack((x.flatten(), y.flatten(), z.flatten())).T
 
         neighbours = []
@@ -200,15 +200,14 @@ class myBox:
 
         for xyz in xyz_stack:
 
-            neighbour_name = 'Box_' +str(xyz[0]) + "_" + str(xyz[1]) + "_" + str(xyz[2])
+            neighbour_name = 'Box_' + str(xyz[0]) + "_" + str(xyz[1]) + "_" + str(xyz[2])
 
             if neighbour_name in parent_dict:
                 neighbours.append(neighbour_name)
 
-
-        #Delete ourselves from the list
+        # Delete ourselves from the list
         if self.name in neighbours:
-            index_to_delete= neighbours.index(self.name)
+            index_to_delete = neighbours.index(self.name)
             neighbours.pop(index_to_delete)
 
         return neighbours
@@ -236,13 +235,13 @@ class myBox:
             y_n = int(name_neighbour[-2])
             z_n = int(name_neighbour[-1])
 
-            #X should be negative when current x is HIGHER then the neighbours x:
-            labels[neighbour] = np.array([x_n-x, y_n-y, z_n-z])
+            # X should be negative when current x is HIGHER then the neighbours x:
+            labels[neighbour] = np.array([x_n - x, y_n - y, z_n - z])
         return labels
 
     def get_box_object(self, box_name):
-        #Returns the actual class object whithe name
-        #If box object does not exists it returns false
+        # Returns the actual class object whithe name
+        # If box object does not exists it returns false
         try:
             box_object = eval("{}['{}']".format(self.dict_name, box_name))
         except KeyError:
@@ -260,7 +259,7 @@ class myBox:
         neighbours = []
         parent_dict = eval(self.dict_name)
         for neighbour_name in neighbour_names:
-            #If name inside the dict it exists and thus is a valid neighbour
+            # If name inside the dict it exists and thus is a valid neighbour
             if neighbour_name in parent_dict:
                 neighbours.append(neighbour_name)
         return neighbours
@@ -281,30 +280,30 @@ class myBox:
 
         distances = []
 
-        #in ax +by + cZ = d, this is d
+        # in ax +by + cZ = d, this is d
         d = np.dot(normal_vec, cg)
 
-        #a,b,c are the entries of normal vec, respectively
+        # a,b,c are the entries of normal vec, respectively
         for point in points:
-            distance_to_plane = (np.dot(normal_vec, point) - d )**2
+            distance_to_plane = (np.dot(normal_vec, point) - d) ** 2
             distances.append(distance_to_plane)
 
         return np.mean(distances)
 
-    def check_connection_criteria(self,c1,c2,points1,points2,treshold):
+    def check_connection_criteria(self, c1, c2, points1, points2, treshold):
 
-        c12 = c1 + (c2-c1)*0.5
+        c12 = c1 + (c2 - c1) * 0.5
 
-        normal_plane_vec = (c2-c1)/np.linalg.norm((c2-c1))
+        normal_plane_vec = (c2 - c1) / np.linalg.norm((c2 - c1))
 
         d1 = self.calc_median_distance(points1, c1, normal_plane_vec)
 
         d2 = self.calc_median_distance(points2, c2, normal_plane_vec)
 
-        d12 = self.calc_median_distance( np.concatenate((points1, points2), axis = 0), c12, normal_plane_vec)
+        d12 = self.calc_median_distance(np.concatenate((points1, points2), axis=0), c12, normal_plane_vec)
 
-        #If meets critera: add connection to both the boxes
-        if treshold*d12 <= min(d1,d2):
+        # If meets critera: add connection to both the boxes
+        if treshold * d12 <= min(d1, d2):
             return True
         else:
             return False
@@ -324,19 +323,17 @@ class myBox:
         y_base = int(name_split[-2])
         z_base = int(name_split[-1])
 
-
         if levels_higher == 1:
-            x,y,z = np.mgrid[ x_base -1 : x_base +1 : 1, y_base : y_base + 2 : 1, z_base : z_base + 2 : 1]
-        elif levels_higher ==2:
-            x,y,z = np.mgrid[ x_base - 1 : x_base + 3 : 1, y_base -2 : y_base + 2 : 1, z_base -2 : z_base + 2 : 1]
+            x, y, z = np.mgrid[x_base - 1: x_base + 1: 1, y_base: y_base + 2: 1, z_base: z_base + 2: 1]
+        elif levels_higher == 2:
+            x, y, z = np.mgrid[x_base - 1: x_base + 3: 1, y_base - 2: y_base + 2: 1, z_base - 2: z_base + 2: 1]
 
         xyz_stack = np.vstack((x.flatten(), y.flatten(), z.flatten())).T
 
         super_box = []
-        for x,y,z in xyz_stack:
+        for x, y, z in xyz_stack:
             box_name = "Box_" + str(x) + "_" + str(y) + "_" + str(z)
             super_box.append(box_name)
-
 
         return super_box
 
@@ -345,11 +342,14 @@ class myBox:
         Finds the adjacent superboxes for this super box
         """
 
-        x_min = 99999999; x_max =0
-        y_min = 99999999; y_max =0
-        z_min = 99999999; z_max =0
+        x_min = 99999999;
+        x_max = 0
+        y_min = 99999999;
+        y_max = 0
+        z_min = 99999999;
+        z_max = 0
 
-        #First find minimum x,y,z
+        # First find minimum x,y,z
         for box_name in super_box:
 
             name_split = box_name.split("_")
@@ -357,59 +357,64 @@ class myBox:
             y = int(name_split[-2])
             z = int(name_split[-1])
 
-            if x< x_min:
+            if x < x_min:
                 x_min = x
-            elif x> x_max:
+            elif x > x_max:
                 x_max = x
 
-            if y< y_min:
+            if y < y_min:
                 y_min = y
-            elif y> y_max:
+            elif y > y_max:
                 y_max = y
 
-            if z< z_min:
+            if z < z_min:
                 z_min = z
-            elif z> z_max:
+            elif z > z_max:
                 z_max = z
 
-        step_size = (2* levels_higher)
-        #Make  all combinations of xyz and z values in range of +/-2 of the min and maximum x,y,z, values:
-        x,y,z = np.mgrid[ x_min - step_size : x_max + (step_size + 1) : 1, y_min -step_size : y_max + (step_size+1) : 1, z_min -step_size : z_max + (step_size+1) : 1]
+        step_size = (2 * levels_higher)
+        # Make  all combinations of xyz and z values in range of +/-2 of the min and maximum x,y,z, values:
+        x, y, z = np.mgrid[x_min - step_size: x_max + (step_size + 1): 1, y_min - step_size: y_max + (step_size + 1): 1,
+                  z_min - step_size: z_max + (step_size + 1): 1]
         xyz_stack = np.vstack((x.flatten(), y.flatten(), z.flatten())).T
 
-        adj_super_boxes = {'adj_super_box1': {'directional_label':[], 'box_names':[]},'adj_super_box2': {'directional_label':[], 'box_names':[]},'adj_super_box3': {'directional_label':[], 'box_names':[]}
-            ,'adj_super_box4': {'directional_label':[], 'box_names':[]}, 'adj_super_box5': {'directional_label':[], 'box_names':[]}, 'adj_super_box6': {'directional_label':[], 'box_names':[]}}
-        #Now select the appropriate values from this list:
-        for x,y,z in xyz_stack:
+        adj_super_boxes = {'adj_super_box1': {'directional_label': [], 'box_names': []},
+                           'adj_super_box2': {'directional_label': [], 'box_names': []},
+                           'adj_super_box3': {'directional_label': [], 'box_names': []}
+            , 'adj_super_box4': {'directional_label': [], 'box_names': []},
+                           'adj_super_box5': {'directional_label': [], 'box_names': []},
+                           'adj_super_box6': {'directional_label': [], 'box_names': []}}
+        # Now select the appropriate values from this list:
+        for x, y, z in xyz_stack:
 
             box_name = "Box_" + str(x) + "_" + str(y) + "_" + str(z)
-            #Super boxes extended from x axis
-            if (x < x_min or x > x_max) and (y >= y_min and  y <= y_max) and (z >= z_min and  z <= z_max):
+            # Super boxes extended from x axis
+            if (x < x_min or x > x_max) and (y >= y_min and y <= y_max) and (z >= z_min and z <= z_max):
 
-                if x< x_min:
+                if x < x_min:
                     adj_super_boxes['adj_super_box1']['box_names'].append(box_name)
-                    adj_super_boxes['adj_super_box1']['directional_label'] = np.array([-1,0,0])
+                    adj_super_boxes['adj_super_box1']['directional_label'] = np.array([-1, 0, 0])
                 elif x > x_max:
                     adj_super_boxes['adj_super_box2']['box_names'].append(box_name)
-                    adj_super_boxes['adj_super_box2']['directional_label'] = np.array([1,0,0])
+                    adj_super_boxes['adj_super_box2']['directional_label'] = np.array([1, 0, 0])
 
-            #Super boxes extended from y axis
-            if (y < y_min or y > y_max) and (x >= x_min and  x <= x_max) and (z >= z_min and  z <= z_max):
+            # Super boxes extended from y axis
+            if (y < y_min or y > y_max) and (x >= x_min and x <= x_max) and (z >= z_min and z <= z_max):
                 if y < y_min:
                     adj_super_boxes['adj_super_box3']['box_names'].append(box_name)
-                    adj_super_boxes['adj_super_box3']['directional_label'] = np.array([0,-1,0])
+                    adj_super_boxes['adj_super_box3']['directional_label'] = np.array([0, -1, 0])
                 elif y > y_max:
                     adj_super_boxes['adj_super_box4']['box_names'].append(box_name)
-                    adj_super_boxes['adj_super_box4']['directional_label'] = np.array([0,1,0])
+                    adj_super_boxes['adj_super_box4']['directional_label'] = np.array([0, 1, 0])
 
-            #Super boxes extended from z axis
-            if (z < z_min or z > z_max) and (y >= y_min and  y <= y_max) and (x >= x_min and  x <= x_max):
+            # Super boxes extended from z axis
+            if (z < z_min or z > z_max) and (y >= y_min and y <= y_max) and (x >= x_min and x <= x_max):
                 if z < z_min:
                     adj_super_boxes['adj_super_box5']['box_names'].append(box_name)
-                    adj_super_boxes['adj_super_box5']['directional_label'] = np.array([0,0,-1])
+                    adj_super_boxes['adj_super_box5']['directional_label'] = np.array([0, 0, -1])
                 elif z > z_max:
                     adj_super_boxes['adj_super_box6']['box_names'].append(box_name)
-                    adj_super_boxes['adj_super_box6']['directional_label'] = np.array([0,0,1])
+                    adj_super_boxes['adj_super_box6']['directional_label'] = np.array([0, 0, 1])
 
         return adj_super_boxes
 
@@ -421,14 +426,14 @@ class myBox:
 
             if box:
                 if points.any():
-                    points = np.concatenate((points,box.points), axis = 0)
+                    points = np.concatenate((points, box.points), axis=0)
                 else:
                     points = box.points
 
         if points.any():
-            cg = np.mean(points,axis =0)
+            cg = np.mean(points, axis=0)
         else:
-            cg = np.array([0,0,0])
+            cg = np.array([0, 0, 0])
 
         return points, cg
 
@@ -443,29 +448,29 @@ class myBox:
             - Finds the closest box with points in the super box and connects to it with the given directional label
         """
 
-        distances =[]
+        distances = []
         potential_boxes = []
         for box in super_box:
 
             box = self.get_box_object(box)
-            #If the box exists:
+            # If the box exists:
             if box:
                 if box.contains_points:
                     distance_vec = (self.cg - box.cg)
-                    #Squared distance
+                    # Squared distance
                     distance = np.dot(distance_vec, distance_vec)
 
                     distances.append(distance)
                     potential_boxes.append(box.name)
 
-        #If there were any boxes with points found, i.e. if there are ANY distances
+        # If there were any boxes with points found, i.e. if there are ANY distances
         if distances:
-            #Find minimum
+            # Find minimum
             index_minimum = np.argmin(distances)
             box_to_connect = potential_boxes[index_minimum]
             min_distance = distances[index_minimum]
 
-            #Add the found connections to both boxes
+            # Add the found connections to both boxes
             box_to_connect = self.get_box_object(box_to_connect)
             self.connections[box_to_connect.name] = directional_label
             box_to_connect.connections[self.name] = -directional_label
@@ -487,9 +492,9 @@ class myBox:
             5) If found we connect the regular box to the clossest regular box in the connected super box.
 
         """
-        levels_higher =1
+        levels_higher = 1
         while len(self.connections) == 0:
-            #find super box, 8 possibilities: this box is lower right, lower left, upper right or upper left, extended forward/backward
+            # find super box, 8 possibilities: this box is lower right, lower left, upper right or upper left, extended forward/backward
             super_box = self.find_super_boxes(levels_higher)
 
             # #List the super boxes and shuffle to choose randomly:
@@ -501,7 +506,7 @@ class myBox:
             adj_super_boxes = self.find_adjacent_super_boxes(super_box, levels_higher)
             points1, cg1 = self.get_super_box_properties(super_box)
 
-            #Check if we can find a conenction between our super box and the adjacent ones:
+            # Check if we can find a conenction between our super box and the adjacent ones:
 
             for super_box_name in adj_super_boxes:
 
@@ -511,21 +516,20 @@ class myBox:
                 points2, cg2 = self.get_super_box_properties(adj_super_box_names)
 
                 if points2.any():
-                    connection = self.check_connection_criteria(cg1,cg2,points1,points2,threshold)
+                    connection = self.check_connection_criteria(cg1, cg2, points1, points2, threshold)
                 else:
                     connection = False
 
                 if connection:
                     distance, box_name = self.get_best_connection_to_super_box(adj_super_box_names, directional_label)
                     if box_name:
-                        possible_connection[box_name] = [distance,directional_label]
+                        possible_connection[box_name] = [distance, directional_label]
 
-            if levels_higher ==2:
+            if levels_higher == 2:
                 break
-            levels_higher +=1
+            levels_higher += 1
 
-
-    def find_connections(self,treshold):
+    def find_connections(self, treshold):
         """
         INPUTS:
             threshold for the connection criteria: threshold * d12 <= min(d1,d2)
@@ -545,21 +549,20 @@ class myBox:
         for neighbour in neighbour_names:
             neighbour = self.get_box_object(neighbour)
 
-            #Check if neighbour is already in connection:
-            if neighbour.name in self.connections or neighbour.contains_points ==False:
+            # Check if neighbour is already in connection:
+            if neighbour.name in self.connections or neighbour.contains_points == False:
                 continue
 
             connection = self.check_connection_criteria(self.cg, neighbour.cg, self.points, neighbour.points, treshold)
 
-            #If meets critera: add connection to both the boxes
+            # If meets critera: add connection to both the boxes
             if connection:
-
-                #Directional label form the directional_label dict:
+                # Directional label form the directional_label dict:
                 directional_label = directional_labels[neighbour.name]
 
-                #Add the connection to the connections dict as {"boxname": direction}
+                # Add the connection to the connections dict as {"boxname": direction}
                 self.connections[neighbour.name] = directional_label
-                #Do the same for the neighbour label but there the directional label is negative of what is found here
+                # Do the same for the neighbour label but there the directional label is negative of what is found here
                 neighbour.connections[self.name] = -directional_label
                 neighbour.calc_Vdim()
                 neighbour.calc_Vdir()
@@ -570,27 +573,27 @@ class myBox:
         self.calc_Vdir()
 
     def get_combined_dim(self, neighbour):
-        #First obtains the lsit of connection and labels if these 2 boxes were combined
-        #Then calculates the vdim
+        # First obtains the lsit of connection and labels if these 2 boxes were combined
+        # Then calculates the vdim
 
         total_connections = self.connections.copy()
 
-        #delete the neighbour from the connection list
+        # delete the neighbour from the connection list
         total_connections.pop(neighbour.name)
 
-        #Add all the connection of the neighbour excluding the ones already present and this box itself
+        # Add all the connection of the neighbour excluding the ones already present and this box itself
         for connection in neighbour.connections.keys():
             if connection != self.name and not connection in total_connections:
                 total_connections[connection] = neighbour.connections[connection]
 
-        #calulate vdim:
+        # calulate vdim:
         vdim = 0
         distinct_labels = []
         for connection in total_connections.keys():
 
             label = total_connections[connection]
 
-            present =False
+            present = False
             for distinct_label in distinct_labels:
                 if (label == distinct_label).all():
                     present = True
@@ -616,24 +619,24 @@ class myBox:
         for neighbour_name in self.connections.keys():
             neighbour = self.get_box_object(neighbour_name)
 
-            #Check 1: is it already a vpair?
+            # Check 1: is it already a vpair?
             if neighbour_name in self.Vpairs:
                 continue
-            #check 2:
+            # check 2:
             combined_dim = self.get_combined_dim(neighbour)
             if not (combined_dim <= max(neighbour.Vdim, self.Vdim)):
-                #If false skip this neighbour
+                # If false skip this neighbour
                 continue
 
-            #check 3:
-            #For each neighbour we check wheter they have an identical neighbour i.e. matching in name and directional label
+            # check 3:
+            # For each neighbour we check wheter they have an identical neighbour i.e. matching in name and directional label
             for connection_neighbour in neighbour.connections.keys():
-                #matching name?
+                # matching name?
                 if connection_neighbour in self.connections.keys():
 
-                    #matching directional label?
+                    # matching directional label?
                     if (neighbour.connections[connection_neighbour] == self.connections[connection_neighbour]).all():
-                        #This neighbour is a Vpair:
+                        # This neighbour is a Vpair:
                         self.Vpairs.append(neighbour_name)
                         # neighbour.Vpairs.append(self.name)
                         found_pair = True
@@ -650,43 +653,47 @@ class myBox:
         4) is the connection with the neighbour in the same direction of one of the nonzero entries of vdir?
         5) The Epair does not form a line
         """
-        check1 = 0; check2 = 0; check3 = 0; check4 = 0; check5 = 0
+        check1 = 0;
+        check2 = 0;
+        check3 = 0;
+        check4 = 0;
+        check5 = 0
 
         found_pair = False
         for neighbour_name in self.connections.keys():
 
             neighbour = self.get_box_object(neighbour_name)
 
-            #Check1  is it already a Epair or is it already merged??
+            # Check1  is it already a Epair or is it already merged??
             if neighbour_name in self.Epairs or neighbour.merged:
                 continue
-            #check 2:
+            # check 2:
             combined_dim = self.get_combined_dim(neighbour)
             if not (combined_dim <= max(neighbour.Vdim, self.Vdim)):
-                check2+=1
+                check2 += 1
                 continue
 
-            #check 3:
+            # check 3:
             if (self.Vdir.count(0) == 3):
-                check3+=1
+                check3 += 1
                 continue
 
-            #check 4:
+            # check 4:
             connection_direction = self.connections[neighbour_name]
             index_connection_direction = np.nonzero(connection_direction)[0]
             non_zero_indices_Vdir = np.nonzero(self.Vdir)[0]
 
             if not index_connection_direction in non_zero_indices_Vdir:
-                check4+=1
+                check4 += 1
                 continue
 
-            #check 5:
-            #Does this pair form a line? I.E. one of them only has 2 connections or less
-            if len(self.connections)<3 or len(neighbour.connections) <3:
-                check5+= 1
+            # check 5:
+            # Does this pair form a line? I.E. one of them only has 2 connections or less
+            if len(self.connections) < 3 or len(neighbour.connections) < 3:
+                check5 += 1
                 continue
 
-            #Passed all checks thus it is an Epair
+            # Passed all checks thus it is an Epair
             self.Epairs.append(neighbour.name)
             # neighbour.Epairs.append(self.name)
 
@@ -708,14 +715,14 @@ class myBox:
             #     continue
             Epair = self.get_box_object(Epair)
 
-            #If Epair is not already merged check it
+            # If Epair is not already merged check it
             if Epair.merged:
-                #If merged delte it from the Epair list
+                # If merged delte it from the Epair list
                 Epair_index = box.Epairs.index(Epair.name)
                 box.Epairs.pop(Epair_index)
 
             else:
-                #Norm of vdir
+                # Norm of vdir
                 norm = abs(Epair.Vdir[0]) + abs(Epair.Vdir[1]) + abs(Epair.Vdir[2])
                 # print(norm)
 
@@ -738,14 +745,14 @@ class myBox:
                 continue
             Vpair = self.get_box_object(Vpair)
 
-            #If Vpair is not already merged check it
+            # If Vpair is not already merged check it
             if Vpair.merged:
                 Vpair_index = box.Vpairs.index(Vpair.name)
                 box.Vpairs.pop(Vpair_index)
                 # print(Vpair.name, "is merged with", Vpair.parent, " Deleted index", Vpair_index)
             else:
 
-                #Norm of vdir
+                # Norm of vdir
                 norm = abs(Vpair.Vdir[0]) + abs(Vpair.Vdir[1]) + abs(Vpair.Vdir[2])
                 # print(norm)
 
@@ -770,7 +777,6 @@ class myBox:
         """
         ate_vpair = False
         for Vpair in self.Vpairs:
-
             self.eat_box(Vpair)
             ate_vpair = True
             break
@@ -795,20 +801,19 @@ class myBox:
 
         best_Epair, norm = self.get_best_epair(self.name)
 
-        #If we found an Epair we have to check if they themselve dont have a better epair
+        # If we found an Epair we have to check if they themselve dont have a better epair
         if best_Epair:
-            #Now check if this node has a better epair:
+            # Now check if this node has a better epair:
             box = self.get_box_object(best_Epair)
 
             box_best_epair, box_norm = self.get_best_epair(box.name)
 
-            #This box has a better epair when it finds a normal smaller then we found
+            # This box has a better epair when it finds a normal smaller then we found
             if norm <= box_norm or box_best_epair == self.name:
                 ate_Epair = True
                 # print("Found Epair to eat:", self.name, "Should eat", box.name)
-                #Eat it
+                # Eat it
                 self.eat_box(box.name)
-
 
         return ate_Epair
 
@@ -835,17 +840,17 @@ class myBox:
 
         """
 
-        #Get box to eat
+        # Get box to eat
         box_to_eat = self.get_box_object(box_name)
 
-        #Add the new points to this box
+        # Add the new points to this box
         if box_to_eat.contains_points:
-            self.points = np.concatenate((self.points, box_to_eat.points), axis = 0)
-        #Append the new child to the child list as well as its own children
+            self.points = np.concatenate((self.points, box_to_eat.points), axis=0)
+        # Append the new child to the child list as well as its own children
         self.children.append(box_to_eat.name)
         for child in box_to_eat.children:
             self.children.append(child)
-        #Calc new cg
+        # Calc new cg
         self.calc_cg()
 
         """
@@ -855,17 +860,17 @@ class myBox:
         2) Change THEIR connection (so the boxes refering to box_to_eat now refer to its parent) and delete the old connections
         """
         for connection in box_to_eat.connections.keys():
-            #Skip if its our selves
+            # Skip if its our selves
             if connection == self.name:
                 continue
-            #skip if its already in our connection list
+            # skip if its already in our connection list
             if connection in self.connections:
                 continue
             self.connections[connection] = box_to_eat.connections[connection]
 
-        #replace all connections with box_to_eat with this parent box
+        # replace all connections with box_to_eat with this parent box
         box_to_eat.replace_connections(self.name)
-        #delete connection with eaten box
+        # delete connection with eaten box
         if box_name in self.connections:
             self.connections.pop(box_name)
 
@@ -877,11 +882,11 @@ class myBox:
             index_to_delete = self.Epairs.index(box_name)
             self.Epairs.pop(index_to_delete)
 
-        #recalculate the Vdir and Vdim
+        # recalculate the Vdir and Vdim
         self.calc_Vdir()
         self.calc_Vdim()
 
-        #Check for new Vpairs for this vertex and all its connections
+        # Check for new Vpairs for this vertex and all its connections
         found_vpair = self.find_v_pairs()
 
         for connection in self.connections:
@@ -892,21 +897,22 @@ class myBox:
             if neighbour_found_vpair:
                 found_vpair = True
 
-        #Set eaten box to merge status
+        # Set eaten box to merge status
         box_to_eat.merged_with(self.name)
 
         return found_vpair
+
 
 if __name__ == "__main__":
 
     import random
 
-    nboxes = 5000 #Number of boxes in which to divide the bounding box of the given set of points
+    nboxes = 5000  # Number of boxes in which to divide the bounding box of the given set of points
 
-    #SAVE THE OUTPUT?
+    # SAVE THE OUTPUT?
     SAVE_DICT = False
     folder = os.path.abspath("./Data")
-    save_name = "myDict" #Automatically adds "_Nxxx_txx.pkl" N = number of points, t = threshold
+    save_name = "myDict"  # Automatically adds "_Nxxx_txx.pkl" N = number of points, t = threshold
 
     points = np.load("Data/data.npy")
     print(points)
@@ -914,53 +920,50 @@ if __name__ == "__main__":
 
     print("Getting ~", nboxes, "boxes for the", len(points), "points!")
     t0 = time.perf_counter()
-    boxes = get_boxes(nboxes,points)
-    t1 =time.perf_counter()
-    print("\tTime:", round(t1-t0,3),"seconds!")
+    boxes = get_boxes(nboxes, points)
+    t1 = time.perf_counter()
+    print("\tTime:", round(t1 - t0, 3), "seconds!")
 
     myDict = {}
 
-    #SHUFFLEs THE BOXES: This makes sure that random Vpairs are merge and it does not have a bias to start a 0,0 and work is way up from there
+    # SHUFFLEs THE BOXES: This makes sure that random Vpairs are merge and it does not have a bias to start a 0,0 and work is way up from there
     random.shuffle(boxes)
     for box in boxes:
         box_name = box[1]
         points_box = box[0]
         myDict[box_name] = myBox("myDict", box_name, points_box)
 
-
     # #make OCTREE
-    ts = [16] #[8,16,24,32,64,128]
+    ts = [16]  # [8,16,24,32,64,128]
 
     for t in ts:
 
-        threshold = 1/t
+        threshold = 1 / t
 
-        print("Getting octtree using threshold 1 /", t,"...")
+        print("Getting octtree using threshold 1 /", t, "...")
         t0 = time.perf_counter()
         find_all_connections(myDict, threshold)
         t1 = time.perf_counter()
         number_of_boxes = count_boxes_with_points(myDict)
         number_of_connections = count_connections(myDict)
-        print("\tFound %s boxes with points!"%number_of_boxes)
-        print("\tTotal connections: %s!"%number_of_connections)
-        print("\tTime:", round(t1-t0,3),"seconds!")
+        print("\tFound %s boxes with points!" % number_of_boxes)
+        print("\tTotal connections: %s!" % number_of_connections)
+        print("\tTime:", round(t1 - t0, 3), "seconds!")
 
         cg, labels_cg = plot_boxes(myDict)
         cube_points, cube_labels = draw_cubes(boxes)
 
-
-
         print("Performing collapsing procedure...")
         t0 = time.perf_counter()
 
-        for dim in [5,4,3,2]:
+        for dim in [5, 4, 3, 2]:
 
             dim_list = make_dim_list(myDict, dim)
 
             find_all_Vpairs(myDict, dim_list)
             find_all_Epairs(myDict, dim_list)
 
-            #If we are Vpairs we check for the new Vpairs and eat all of them till we have nothing mroe to eat
+            # If we are Vpairs we check for the new Vpairs and eat all of them till we have nothing mroe to eat
             vpairs_there = True
             cycles = 0
 
@@ -976,8 +979,8 @@ if __name__ == "__main__":
                 sys.stdout.write("\tEating Vpair cycle {}!\r".format(cycles))
                 sys.stdout.flush()
 
-                cycles+=1
-                #If we didnt find any new V-pairs we merge ONE E-pair
+                cycles += 1
+                # If we didnt find any new V-pairs we merge ONE E-pair
                 if vpairs_there:
                     continue
                 else:
@@ -986,16 +989,16 @@ if __name__ == "__main__":
                     succes = eat_one_epair(myDict, dim_list)
                     find_all_Vpairs(myDict, dim_list)
 
-                    #If there was an Epair eaten: We continue the search for Vpairs
+                    # If there was an Epair eaten: We continue the search for Vpairs
                     if succes:
-                        #Make this one to stay in the loop
+                        # Make this one to stay in the loop
                         vpairs_there = True
             # cg, labels_cg = plot_boxes(myDict, False)
             # make_plot(np.concatenate((points,cg), axis = 0), np.concatenate((labels/255,labels_cg*2/255), axis=0))
-            print("\tFinished dim %s collapse in %s cycles!"%(dim,cycles))
+            print("\tFinished dim %s collapse in %s cycles!" % (dim, cycles))
 
-            total_E= 0
-            total_V= 0
+            total_E = 0
+            total_V = 0
             for box in dim_list:
                 try:
                     box = myDict[box]
@@ -1004,11 +1007,11 @@ if __name__ == "__main__":
 
                 Epairs = len(box.Epairs)
                 Vpairs = len(box.Vpairs)
-                total_E+= Epairs
-                total_V+= Vpairs
+                total_E += Epairs
+                total_V += Vpairs
 
-        t1 =time.perf_counter()
-        print("Time:", round(t1-t0,3),"seconds!")
+        t1 = time.perf_counter()
+        print("Time:", round(t1 - t0, 3), "seconds!")
         cg, labels_cg = plot_boxes(myDict)
 
         t0 = time.perf_counter()
@@ -1018,10 +1021,10 @@ if __name__ == "__main__":
             if not os.path.isdir(folder):
                 os.mkdir(folder)
 
-            name_file ="%s_N%sK_t%s.pkl"%(save_name, str(nboxes)[0:2], t )
+            name_file = "%s_N%sK_t%s.pkl" % (save_name, str(nboxes)[0:2], t)
 
             f = open(folder + "/" + name_file, "wb")
-            pickle.dump(myDict,f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(myDict, f, pickle.HIGHEST_PROTOCOL)
             f.close()
 
-            print("Saved the dict!\n\tLocation: %s"%(folder + "/" + name_file))
+            print("Saved the dict!\n\tLocation: %s" % (folder + "/" + name_file))
