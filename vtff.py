@@ -4,22 +4,18 @@ import cv2
 import PySimpleGUI as sg
 
 
-
 def pascalvoc_image(image_dir, image_name, segment_image, filteredPath):
     segvalues, segoverlay = segment_image.segmentAsPascalvoc(image_dir + "/" + image_name, overlay=False)
 
-
-
-    segoverlay[segoverlay[:,:] != (128,128,192)] = 0
+    segoverlay[segoverlay[:, :] != (128, 128, 192)] = 0
     # Above code takes an image, segments it and returns a filter where the background is black.
     # Filter original image by grayscaling the filter we received above and then thresholding the image.
     original = cv2.imread(image_dir + "/" + image_name)
-    filter  =segoverlay
+    filter = segoverlay
     gray = cv2.cvtColor(filter, cv2.COLOR_BGR2GRAY)
     original[gray == 0] = 255
-    print(filteredPath+image_name)
+    print(filteredPath + image_name)
     cv2.imwrite(filteredPath + image_name, original)
-
 
 
 def videoToFrames(videoPath, videoName, fps, results):
@@ -29,8 +25,6 @@ def videoToFrames(videoPath, videoName, fps, results):
 
 
 def videoToFilteredFrames(videoPath, videoName, fps, results):
-
-
     videoToFrames(videoPath, videoName, fps, results)
 
     segment_image = semantic_segmentation()
@@ -52,14 +46,13 @@ def main():
 
 
 def ui_input():
-
     input_column = [
         [sg.Text("Pick a video")],
-        [sg.FileBrowse(file_types=(("MP4 Files", "*.mp4"),("MOV Files", "*.mov"))), sg.Input(key="Browse_Update", enable_events=True)],
+        [sg.FileBrowse(file_types=(("MP4 Files", "*.mp4"), ("MOV Files", "*.mov"))),
+         sg.Input(key="Browse_Update", enable_events=True)],
         [sg.Text("Pick result destination")],
-        [sg.FolderBrowse(),sg.Input(key="Destination")],
+        [sg.FolderBrowse(), sg.Input(key="Destination")],
         [sg.Submit(key="Start")]
-
 
     ]
 
@@ -77,8 +70,10 @@ def ui_input():
             videoName = videoName[-1]
             results = values['Destination']
             videoToFilteredFrames(videoDir, videoName, 13, results)
-
+        elif event == "OK" or event == sg.WIN_CLOSED:
+            break
     window.close()
+
 
 if __name__ == "__main__":
     # main()
