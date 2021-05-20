@@ -7,6 +7,8 @@ class point:
         self.z = z
 
 
+
+
 def generatePointsFromFile(fileName):
     f = open(fileName, 'r')
     content = f.readlines()
@@ -46,7 +48,7 @@ def drawGraph(points, normals, z):
     Y = []
     Z = []
     for p in points:
-        if round(p.z,2) == float(z):
+        if round(p.z,2) == round(float(z),2):
             X.append(p.x)
             Y.append(p.y)
             Z.append(p.z)
