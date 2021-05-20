@@ -1,10 +1,10 @@
 import PySimpleGUI as sg
-import point_extractor.ui_input as pe
-import vtff.ui_input as vtff
+import point_extractor as pe
+import vtff
 
 
 def main():
-    projects = {"vtff": vtff, "pe": pe}
+    projects = {"vtff": vtff.ui_input, "pe": pe.ui_input}
 
     input_column = [[sg.Text("Press button to run program")],
                     [sg.Button("Video to Filtered Frames", key="vtff")],
