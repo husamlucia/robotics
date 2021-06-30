@@ -1,5 +1,8 @@
+import math
 import matplotlib.pyplot as plt
 import numpy as np
+import convexHull
+
 class point:
     def __init__(self, x, y, z):
         self.x = x
@@ -40,7 +43,22 @@ def generatePointsFromFile(fileName):
     return l, minZ, maxZ, n, minY, maxY
 
 
+def convertToPoint(X, Y):
+    points = []
+
+    for i in range(len(X)):
+        p = convexHull.Point(X[i], Y[i])
+        points.append(p)
+    return points
+
+
+def euc(p1, p2):
+    return math.sqrt((p1.x - p2.x)**2 +(p1.y - p2.y)**2)
+
+
+
 def drawGraph(points, normals, z):
+
     plt.clf()
     X = []
     Y = []
@@ -53,7 +71,18 @@ def drawGraph(points, normals, z):
     plt.scatter(X, Y)
     plt.xlabel("x")
     plt.ylabel("y")
+
+    points = convertToPoint(X,Y)
+    hullPoints = convexHull.convexHull(points,len(points))
+
+    sum = 0
+    for i in range(len(hullPoints)-1):
+        sum+=euc(hullPoints[i],hullPoints[i+1])
+    sum += euc(hullPoints[0], hullPoints[-1])
+    plt.title(f"The circumference is: {sum}")
     plt.show()
+
+
 
 
 def run_program(filename, z):
