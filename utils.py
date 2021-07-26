@@ -388,7 +388,7 @@ def make_plot(plot_points,colors = False, point_size = 0.0005):
     v = pptk.viewer(plot_points)
     v.attributes(colors)
     v.set(point_size=point_size)
-
+    return v
 
 def draw_vector_lines(vectors, start_point):
     vector_lines = []

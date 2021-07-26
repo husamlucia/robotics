@@ -902,9 +902,7 @@ class myBox:
 
         return found_vpair
 
-
-if __name__ == "__main__":
-
+def run_skelTree(filePath="./Data/data.npy"):
     import random
 
     nboxes = 5000  # Number of boxes in which to divide the bounding box of the given set of points
@@ -914,117 +912,120 @@ if __name__ == "__main__":
     folder = os.path.abspath("./Data")
     save_name = "myDict"  # Automatically adds "_Nxxx_txx.pkl" N = number of points, t = threshold
 
-    points = np.load("Data/data.npy")
-    print(points)
-    make_plot(points)
+    points = np.load(filePath)
+    v = make_plot(points)
+    return v
+    #
+    # print("Getting ~", nboxes, "boxes for the", len(points), "points!")
+    # t0 = time.perf_counter()
+    # boxes = get_boxes(nboxes, points)
+    # t1 = time.perf_counter()
+    # print("\tTime:", round(t1 - t0, 3), "seconds!")
+    #
+    # myDict = {}
+    #
+    # # SHUFFLEs THE BOXES: This makes sure that random Vpairs are merge and it does not have a bias to start a 0,0 and work is way up from there
+    # random.shuffle(boxes)
+    # for box in boxes:
+    #     box_name = box[1]
+    #     points_box = box[0]
+    #     myDict[box_name] = myBox("myDict", box_name, points_box)
+    #
+    # # #make OCTREE
+    # ts = [16]  # [8,16,24,32,64,128]
+    #
+    # for t in ts:
+    #
+    #     threshold = 1 / t
+    #
+    #     print("Getting octtree using threshold 1 /", t, "...")
+    #     t0 = time.perf_counter()
+    #     find_all_connections(myDict, threshold)
+    #     t1 = time.perf_counter()
+    #     number_of_boxes = count_boxes_with_points(myDict)
+    #     number_of_connections = count_connections(myDict)
+    #     print("\tFound %s boxes with points!" % number_of_boxes)
+    #     print("\tTotal connections: %s!" % number_of_connections)
+    #     print("\tTime:", round(t1 - t0, 3), "seconds!")
+    #
+    #     cg, labels_cg = plot_boxes(myDict)
+    #     cube_points, cube_labels = draw_cubes(boxes)
+    #
+    #     print("Performing collapsing procedure...")
+    #     t0 = time.perf_counter()
+    #
+    #     for dim in [5, 4, 3, 2]:
+    #
+    #         dim_list = make_dim_list(myDict, dim)
+    #
+    #         find_all_Vpairs(myDict, dim_list)
+    #         find_all_Epairs(myDict, dim_list)
+    #
+    #         # If we are Vpairs we check for the new Vpairs and eat all of them till we have nothing mroe to eat
+    #         vpairs_there = True
+    #         cycles = 0
+    #
+    #         csv_path = os.getcwd() + "/Data/NNModel/class_dict.csv"
+    #
+    #         while vpairs_there:
+    #
+    #             _ = eat_all_Vpairs(myDict, dim_list)
+    #
+    #             find_all_Vpairs(myDict, dim_list)
+    #             vpairs_there, total = still_vpairs(myDict, dim_list)
+    #
+    #             sys.stdout.write("\tEating Vpair cycle {}!\r".format(cycles))
+    #             sys.stdout.flush()
+    #
+    #             cycles += 1
+    #             # If we didnt find any new V-pairs we merge ONE E-pair
+    #             if vpairs_there:
+    #                 continue
+    #             else:
+    #
+    #                 find_all_Epairs(myDict, dim_list)
+    #                 succes = eat_one_epair(myDict, dim_list)
+    #                 find_all_Vpairs(myDict, dim_list)
+    #
+    #                 # If there was an Epair eaten: We continue the search for Vpairs
+    #                 if succes:
+    #                     # Make this one to stay in the loop
+    #                     vpairs_there = True
+    #         # cg, labels_cg = plot_boxes(myDict, False)
+    #         # make_plot(np.concatenate((points,cg), axis = 0), np.concatenate((labels/255,labels_cg*2/255), axis=0))
+    #         print("\tFinished dim %s collapse in %s cycles!" % (dim, cycles))
+    #
+    #         total_E = 0
+    #         total_V = 0
+    #         for box in dim_list:
+    #             try:
+    #                 box = myDict[box]
+    #             except KeyError:
+    #                 continue
+    #
+    #             Epairs = len(box.Epairs)
+    #             Vpairs = len(box.Vpairs)
+    #             total_E += Epairs
+    #             total_V += Vpairs
+    #
+    #     t1 = time.perf_counter()
+    #     print("Time:", round(t1 - t0, 3), "seconds!")
+    #     cg, labels_cg = plot_boxes(myDict)
+    #
+    #     t0 = time.perf_counter()
+    #
+    #     # Save as pickle file
+    #     if SAVE_DICT:
+    #         if not os.path.isdir(folder):
+    #             os.mkdir(folder)
+    #
+    #         name_file = "%s_N%sK_t%s.pkl" % (save_name, str(nboxes)[0:2], t)
+    #
+    #         f = open(folder + "/" + name_file, "wb")
+    #         pickle.dump(myDict, f, pickle.HIGHEST_PROTOCOL)
+    #         f.close()
+    #
+    #         print("Saved the dict!\n\tLocation: %s" % (folder + "/" + name_file))
 
-    print("Getting ~", nboxes, "boxes for the", len(points), "points!")
-    t0 = time.perf_counter()
-    boxes = get_boxes(nboxes, points)
-    t1 = time.perf_counter()
-    print("\tTime:", round(t1 - t0, 3), "seconds!")
-
-    myDict = {}
-
-    # SHUFFLEs THE BOXES: This makes sure that random Vpairs are merge and it does not have a bias to start a 0,0 and work is way up from there
-    random.shuffle(boxes)
-    for box in boxes:
-        box_name = box[1]
-        points_box = box[0]
-        myDict[box_name] = myBox("myDict", box_name, points_box)
-
-    # #make OCTREE
-    ts = [16]  # [8,16,24,32,64,128]
-
-    for t in ts:
-
-        threshold = 1 / t
-
-        print("Getting octtree using threshold 1 /", t, "...")
-        t0 = time.perf_counter()
-        find_all_connections(myDict, threshold)
-        t1 = time.perf_counter()
-        number_of_boxes = count_boxes_with_points(myDict)
-        number_of_connections = count_connections(myDict)
-        print("\tFound %s boxes with points!" % number_of_boxes)
-        print("\tTotal connections: %s!" % number_of_connections)
-        print("\tTime:", round(t1 - t0, 3), "seconds!")
-
-        cg, labels_cg = plot_boxes(myDict)
-        cube_points, cube_labels = draw_cubes(boxes)
-
-        print("Performing collapsing procedure...")
-        t0 = time.perf_counter()
-
-        for dim in [5, 4, 3, 2]:
-
-            dim_list = make_dim_list(myDict, dim)
-
-            find_all_Vpairs(myDict, dim_list)
-            find_all_Epairs(myDict, dim_list)
-
-            # If we are Vpairs we check for the new Vpairs and eat all of them till we have nothing mroe to eat
-            vpairs_there = True
-            cycles = 0
-
-            csv_path = os.getcwd() + "/Data/NNModel/class_dict.csv"
-
-            while vpairs_there:
-
-                _ = eat_all_Vpairs(myDict, dim_list)
-
-                find_all_Vpairs(myDict, dim_list)
-                vpairs_there, total = still_vpairs(myDict, dim_list)
-
-                sys.stdout.write("\tEating Vpair cycle {}!\r".format(cycles))
-                sys.stdout.flush()
-
-                cycles += 1
-                # If we didnt find any new V-pairs we merge ONE E-pair
-                if vpairs_there:
-                    continue
-                else:
-
-                    find_all_Epairs(myDict, dim_list)
-                    succes = eat_one_epair(myDict, dim_list)
-                    find_all_Vpairs(myDict, dim_list)
-
-                    # If there was an Epair eaten: We continue the search for Vpairs
-                    if succes:
-                        # Make this one to stay in the loop
-                        vpairs_there = True
-            # cg, labels_cg = plot_boxes(myDict, False)
-            # make_plot(np.concatenate((points,cg), axis = 0), np.concatenate((labels/255,labels_cg*2/255), axis=0))
-            print("\tFinished dim %s collapse in %s cycles!" % (dim, cycles))
-
-            total_E = 0
-            total_V = 0
-            for box in dim_list:
-                try:
-                    box = myDict[box]
-                except KeyError:
-                    continue
-
-                Epairs = len(box.Epairs)
-                Vpairs = len(box.Vpairs)
-                total_E += Epairs
-                total_V += Vpairs
-
-        t1 = time.perf_counter()
-        print("Time:", round(t1 - t0, 3), "seconds!")
-        cg, labels_cg = plot_boxes(myDict)
-
-        t0 = time.perf_counter()
-
-        # Save as pickle file
-        if SAVE_DICT:
-            if not os.path.isdir(folder):
-                os.mkdir(folder)
-
-            name_file = "%s_N%sK_t%s.pkl" % (save_name, str(nboxes)[0:2], t)
-
-            f = open(folder + "/" + name_file, "wb")
-            pickle.dump(myDict, f, pickle.HIGHEST_PROTOCOL)
-            f.close()
-
-            print("Saved the dict!\n\tLocation: %s" % (folder + "/" + name_file))
+if __name__ == "__main__":
+    run_skelTree()
