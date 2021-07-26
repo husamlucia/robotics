@@ -9,6 +9,7 @@ pip install -r requirements.txt
 ### Must have:
 	masks folder: "./masks/deeplabv3_xception_tf_dim_ordering_tf_kernels.h5"
 	above requirements
+	video name must not have space in it
 
 ### Run the program from Main.py file
 
