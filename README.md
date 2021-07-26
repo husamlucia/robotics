@@ -12,9 +12,10 @@ pip install -r requirements.txt
 	video name and folder names must not have space in it
 
 ### Run the program from Main.py file
-
+![image](https://user-images.githubusercontent.com/71547322/127033467-078c91e1-36ac-4f2c-8723-b1e596030021.png)
 ### Two options are displayed:
   * Video to Filtered Frames
+  * ![image](https://user-images.githubusercontent.com/71547322/127033599-ec126b7a-e65f-47b5-a72f-9b8620892677.png)
       * Input:
         * .mp4 or .mov video,
         * Output folder destination,
@@ -22,6 +23,7 @@ pip install -r requirements.txt
       * Output:
         * Filtered folder with human seperated from background
 * 3d Viewer and Calculator
+* ![image](https://user-images.githubusercontent.com/71547322/127033637-9da9a3e6-add5-4e01-8c82-bd4aef26ddad.png)
   * Input:
     * .xyz or .txt normalized point cloud
   * Selecting a point on the model then pressing Show will display the figure at selected height, which we calculate and return it's circumference
