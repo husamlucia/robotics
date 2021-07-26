@@ -4,9 +4,10 @@
 
 pip install -r requirements.txt
 
+### To perform filtering, you need to download the mask from [here](https://github.com/ayoolaolafenwa/PixelLib/releases/download/1.1/deeplabv3_xception_tf_dim_ordering_tf_kernels.h5), create "masks" folder in project directory and put it in the folder
 
 ### Must have:
-	masks folder with deeplabv3_xception_tf_dim_ordering_tf_kernels.h5 in it
+	masks folder: "./masks/deeplabv3_xception_tf_dim_ordering_tf_kernels.h5"
 	above requirements
 
 ### Run the program from Main.py file
