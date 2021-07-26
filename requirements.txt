@@ -1,0 +1,7 @@
+opencv-python
+pixellib
+numpy
+matplotlib
+scipy
+tensorflow
+pptk
