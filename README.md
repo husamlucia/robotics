@@ -25,5 +25,7 @@ pip install -r requirements.txt
   * Input:
     * .xyz or .txt normalized point cloud
   * Selecting a point on the model then pressing Show will display the figure at selected height, which we calculate and return it's circumference
+  * Select = CTRL + Left Mouse
+  * Clear Points = CTRL + Right Mouse
 
 Missing: Scale
